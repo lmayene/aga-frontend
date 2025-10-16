@@ -1,21 +1,20 @@
-// src/pages/LoginPage.tsx
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Container, TextField, Typography, Alert } from '@mui/material';
 import axios from 'axios';
-import { useAuth } from '../AuthContext'; // Importamos o nosso hook de autenticação
+import { useAuth } from '../AuthContext';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // Estado para controlar o carregamento
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const auth = useAuth(); // Usamos o hook para acessar as funções de login
+  const auth = useAuth();
+
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleLogin = async () => {
-    // Evita múltiplos cliques enquanto o login está em processamento
     if (isLoading) return; 
 
     setError('');
@@ -26,18 +25,14 @@ function LoginPage() {
     params.append('password', password);
 
     try {
-      // Usamos o axios puro aqui, pois o apiClient ainda não tem o token
-      const response = await axios.post('http://127.0.0.1:8080/token', params, {
+      const response = await axios.post(`${API_URL}/token`, params, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
       });
 
       const accessToken = response.data.access_token;
       
-      // Entregamos o token para o AuthContext. Ele irá salvar o token,
-      // buscar os dados do usuário e atualizar o estado global.
       await auth.login(accessToken);
       
-      // Navegamos para o dashboard somente após o login ser processado
       navigate('/dashboard'); 
 
     } catch (err) {
@@ -47,7 +42,7 @@ function LoginPage() {
         setError('Não foi possível conectar ao servidor.');
       }
     } finally {
-      setIsLoading(false); // Libera o botão, independentemente do resultado
+      setIsLoading(false);
     }
   };
 
@@ -95,7 +90,7 @@ function LoginPage() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleLogin()} // Permite login com Enter
+            onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
           />
           <Button
             type="button"
@@ -103,7 +98,7 @@ function LoginPage() {
             variant="contained"
             sx={{ mt: 3, mb: 2, backgroundColor: '#00a6e0' }}
             onClick={handleLogin}
-            disabled={isLoading} // Desabilita o botão durante o carregamento
+            disabled={isLoading}
           >
             {isLoading ? 'Entrando...' : 'Entrar'}
           </Button>
