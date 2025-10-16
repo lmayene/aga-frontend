@@ -1,17 +1,15 @@
-// src/pages/DashboardPage.tsx
-
 import { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { 
-  Box, 
-  Container, 
-  Typography, 
-  CircularProgress, 
-  Alert, 
-  Grid, 
-  Card, 
-  CardContent, 
-  CardActions, 
+import {
+  Box,
+  Container,
+  Typography,
+  CircularProgress,
+  Alert,
+  Grid,
+  Card,
+  CardContent,
+  CardActions,
   Button,
   TextField,
   InputAdornment,
@@ -46,7 +44,7 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Estados para o diálogo de confirmação de exclusão
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [agentToDelete, setAgentToDelete] = useState<Agent | null>(null);
@@ -68,7 +66,7 @@ function DashboardPage() {
     fetchAgents();
   }, []);
 
-  const filteredAgents = agents.filter(agent => 
+  const filteredAgents = agents.filter(agent =>
     agent.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -122,7 +120,7 @@ function DashboardPage() {
             InputProps={{ startAdornment: (<InputAdornment position="start"><SearchIcon /></InputAdornment>) }}
           />
         </Box>
-        
+
         <Grid container spacing={3}>
           {filteredAgents.length === 0 ? (
             <Grid item xs={12}>
@@ -141,8 +139,12 @@ function DashboardPage() {
                   </CardContent>
                   <CardActions sx={{ justifyContent: 'space-between' }}>
                     <div>
-                      <Button size="small" sx={{ color: '#00a6e0' }} component={RouterLink} to={`/chat/${agent.id}`}>Conversar</Button>
-                      <Button size="small" color="secondary" component={RouterLink} to={`/agentes/edit/${agent.id}`}>Editar</Button>
+                      <RouterLink to={`/chat/${agent.id}`} style={{ textDecoration: 'none' }}>
+                        <Button size="small" sx={{ color: '#00a6e0' }}>Conversar</Button>
+                      </RouterLink>
+                      <RouterLink to={`/agentes/edit/${agent.id}`} style={{ textDecoration: 'none' }}>
+                        <Button size="small" color="secondary">Editar</Button>
+                      </RouterLink>
                     </div>
                     <IconButton size="small" onClick={() => handleDeleteClick(agent)} aria-label="deletar">
                       <DeleteIcon fontSize="small" />
