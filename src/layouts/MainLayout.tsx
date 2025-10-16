@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Outlet, useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { 
   AppBar, Box, CssBaseline, Drawer, List, ListItem, ListItemButton, 
   ListItemIcon, ListItemText, Toolbar, Typography, IconButton, Divider, 
@@ -14,36 +14,33 @@ import { useAuth } from '../AuthContext';
 
 const drawerWidth = 280;
 
-interface Conversation {
+interface Agent {
   id: number;
-  agent: {
-    id: number;
-    name: string;
-  }
+  name: string;
 }
 
 function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAuth(); 
+  const { user, logout } = useAuth();
   
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
-  const [conversations, setConversations] = useState<Conversation[]>([]); 
+  const [agents, setAgents] = useState<Agent[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
-    const fetchConversations = async () => {
+    const fetchAgents = async () => {
       try {
-        const convResponse = await apiClient.get('/conversations/');
-        setConversations(convResponse.data);
+        const agentsResponse = await apiClient.get('/agentes/');
+        setAgents(agentsResponse.data);
       } catch (error) {
-        console.error("Erro ao buscar conversas.", error);
+        console.error("Erro ao buscar agentes.", error);
       }
     };
     if (user) {
-      fetchConversations();
+      fetchAgents();
     }
-  }, [user, location.key]); 
+  }, [user, location.key]);
 
   const handleDrawerToggle = () => {
     setIsDrawerOpen(!isDrawerOpen);
@@ -53,9 +50,9 @@ function MainLayout() {
   const handleClose = () => setAnchorEl(null);
   
   const handleLogout = () => {
-    handleClose(); 
-    logout();      
-    navigate('/'); 
+    handleClose();
+    logout();
+    navigate('/');
   };
 
   const drawerContent = (
@@ -64,13 +61,13 @@ function MainLayout() {
       <Divider />
       <List>
         <ListItem disablePadding>
-          <ListItemButton component={RouterLink} to="/dashboard">
+          <ListItemButton onClick={() => navigate('/dashboard')}>
             <ListItemIcon><DashboardIcon /></ListItemIcon>
             <ListItemText primary="Galeria de Agentes" />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
-          <ListItemButton component={RouterLink} to="/chat-geral">
+          <ListItemButton onClick={() => navigate('/chat-geral')}>
             <ListItemIcon><AddCommentIcon /></ListItemIcon>
             <ListItemText primary="Chat Geral" />
           </ListItemButton>
@@ -79,12 +76,11 @@ function MainLayout() {
       <Divider />
       <Typography sx={{ p: 2, fontWeight: 'bold', color: 'text.secondary', fontSize: '0.9rem' }}>CONVERSAS</Typography>
       <List>
-        {/* Mapeamos a lista de conversas, não de agentes */}
-        {conversations.map((convo) => (
-          <ListItem key={convo.id} disablePadding>
-            <ListItemButton component={RouterLink} to={`/chat/${convo.agent.id}`}>
+        {agents.map((agent) => (
+          <ListItem key={agent.id} disablePadding>
+            <ListItemButton onClick={() => navigate(`/chat/${agent.id}`)}>
               <ListItemIcon><ChatIcon sx={{ fontSize: 20 }} /></ListItemIcon>
-              <ListItemText primary={convo.agent.name} />
+              <ListItemText primary={agent.name} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -150,7 +146,7 @@ function MainLayout() {
             flexGrow: 1, p: 3, 
             transition: (theme) => theme.transitions.create('margin', {
                 easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.leavingScreen,
+                duration: theme.transitions.duration.enteringScreen,
             }),
             marginLeft: `-${drawerWidth}px`,
             ...(isDrawerOpen && {
